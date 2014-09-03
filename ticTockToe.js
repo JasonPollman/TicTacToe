@@ -2,7 +2,7 @@
 
   $(function () {
 
-    var game = new speedTacToe();
+    var game = new ticTockToe();
     game.new();
 
   }); // End document.ready()
@@ -10,9 +10,9 @@
 })(jQuery);
 
 
-// <------------------------------------ SPEEDTACTOE CLASS ------------------------------------> //
+// <------------------------------------ ticTockToe CLASS ------------------------------------> //
 
-var speedTacToe = function () {
+var ticTockToe = function () {
 
   // For scoping, in the event of callbacks
   var self = this;
@@ -33,28 +33,51 @@ var speedTacToe = function () {
     player1Mark : "x",
     player2Mark : "o",
 
-    fadeDuration: 800,  // 0.8 Sec
+    fadeDuration:  800, // 0.8 Sec
     pushDuration: 5000, // 5.0 Sec
+
+    nextGameTimeout: 5, // In seconds, 5.0 Sec
+    nextMoveTimeout: 3  // 3.0 Sec
 
   } // End options Object
 
-
+  var pushTimeout;
   var message = {
 
     push: function (msg, strClasses, sticky) {
 
-      $("#push-messages #message").hide(function (e) {
+      $("#push-messages #message").stop().fadeOut(options.fadeDuration, function (e) {
         $(this).html(msg).removeClass().addClass('push-' + (strClasses || 'notice')).fadeIn(options.fadeDuration);
       });
 
       if(!sticky) {
-        var pushTimeout = setTimeout(function () {
+        pushTimeout = setTimeout(function () {
           $("#push-messages #message").fadeOut(options.fadeDuration);
           clearTimeout(pushTimeout);
         }, options.pushDuration);
       }
 
-    } // End push()
+    }, // End push()
+
+    append: function (msg, strClasses, sticky) {
+
+      $("#push-messages #message").hide(function (e) {
+        $(this).html($(this).html() + '<br />' + msg).removeClass().addClass('push-' + (strClasses || 'notice')).fadeIn(options.fadeDuration);
+      });
+
+      clearTimeout(pushTimeout);
+      if(!sticky) {
+        pushTimeout = setTimeout(function () {
+          $("#push-messages #message").fadeOut(options.fadeDuration);
+          clearTimeout(pushTimeout);
+        }, options.pushDuration);
+      }
+
+    }, // End append()
+
+    clear: function () {
+      $("#push-messages #message").html("");
+    } // End clear()
 
   } // End message Object
 
@@ -63,9 +86,11 @@ var speedTacToe = function () {
   // <----------------------- PRIVATE PROPERTIES -----------------------> //
 
   var moves     = { 1: [], 2: [] };
+  var movesRaw  = [];
   var moveCount = 0;
   var turn      = undefined;
   var gameOver  = false;
+  var lastMove    = [];
 
 
   var game = {
@@ -75,6 +100,7 @@ var speedTacToe = function () {
     get totalMoves    () { return moves.length },
     get gameOver      () { return isGameOver() },
     get winner        () { return winner()     },
+    get lastMove      () { return lastMove()   },
 
     get currentMove   () { return (turn == 1) ? options.player1Name : options.player2Name },
     get currentPlayer () { return (turn == 1) ? options.player1Name : options.player2Name }
@@ -93,7 +119,7 @@ var speedTacToe = function () {
     buildBoard();
 
     // Start gameplay:
-    startGame();
+    reset();
 
 
 
@@ -111,10 +137,81 @@ var speedTacToe = function () {
 
   // <------------------------- PRIVATE METHODS ------------------------> //
 
+  function setMoveTimer() {
+    var moveTimer = options.nextMoveTimeout;
+    moveInterval = setInterval(function () {
+      $("#move-timer").html(moveTimer + "<br />Seconds left Until Random Choice!");
+      
+      if(moveTimer <= 0) {
+        clearInterval(moveInterval);
+        makeRandomMove();
+      }
+      moveTimer--;
+    }, 1000);
+  }
+
+  function makeRandomMove() {
+    
+    var row = Math.floor(Math.random() * (options.boardSize));
+    var col = Math.floor(Math.random() * (options.boardSize));
+    console.log(movesRaw.indexOf([row, col, 1]));
+
+    while(movesRaw.indexOf([row, col, 1]) == -1) {
+      row = Math.floor(Math.random() * (options.boardSize));
+      col = Math.floor(Math.random() * (options.boardSize));
+      console.log(row, col, turn, movesRaw, movesRaw.indexOf([row, col, 1]));
+      if(movesRaw.indexOf([row, col, 1]) == -1) break;
+    }
+
+    moves[turn].push({ row: row, col: col });
+    movesRaw.push([row, col, turn]);
+
+    gameOver = winner();
+    if(!gameOver) {
+      nextTurn();
+      setMoveTimer();
+    }
+  }
+
   function reset() {
-    moves    = { 1: [], 2: [] };
-    turn     = undefined;
-    gameOver = false;
+
+    moves     = { 1: [], 2: [] };
+    movesRaw  = [];
+    moveCount = 0;
+    turn      = undefined;
+    gameOver  = false;
+
+    $('.board-col').html("").removeClass("winning-move");
+
+    // Determine if Player 1 || 2 goes first:
+    turn = Math.floor(Math.random() * (3 - 1)) + 1;
+    message.push(game.currentPlayer + " has been randomly choosen to go first!", "notice");
+
+    
+    setMoveTimer();
+
+    $('#game-page #board table tr td').click(function () {
+      if($(this).html() == '') {
+        $(this).html('<div class="player' + turn + '-mark">' + ((turn == 1) ? options.player1Mark : options.player2Mark + "</div>"));
+        
+        var row = $(this).attr('class').match(/row-(\d+)/)[1];
+        var col = $(this).attr('class').match(/col-(\d+)/)[1];
+
+        moves[turn].push({ row: row, col: col });
+        movesRaw.push([row, col, turn]);
+        lastMove = [row, col];
+        moveCount++;
+        gameOver = winner();
+        if(!gameOver) {
+          nextTurn();
+          setMoveTimer();
+        }
+      }
+      else {
+        message.push("That spot's taken!", 'notice');
+      }
+
+    }) // End click handler
 
   } // End reset()
 
@@ -125,32 +222,10 @@ var speedTacToe = function () {
   } // End setOptions()
 
 
-  function startGame () {
-
-    // Determine if Player 1 || 2 goes first:
-    turn = Math.floor(Math.random() * (3 - 1)) + 1;
-    message.push(game.currentPlayer + " has been randomly choosen to go first!", "notice");
-
-    $('#game-page #board table tr td').click(function () {
-      if($(this).html() == '') {
-        $(this).html('<div class="player' + turn + '-mark">' + ((turn == 1) ? options.player1Mark : options.player2Mark + "</div>"));
-        
-        var row = $(this).attr('class').match(/row-(\d+)/)[1];
-        var col = $(this).attr('class').match(/col-(\d+)/)[1];
-
-        moves[turn].push({ row: row, col: col });
-        moveCount++;
-        winner();
-        nextTurn();
-      }
-      else {
-        message.push("That spot's taken!", 'notice');
-      }
-    })
-
-  } // End startGame()
-
-  function nextTurn () { turn = (turn == 1) ? 2 : 1; }
+  function nextTurn () {
+    turn = (turn == 1) ? 2 : 1;
+    message.push("You made your mark in row " + (parseInt(lastMove[0]) + 1) + ", column " + (parseInt(lastMove[1]) + 1) + ". Now, it's " + ((turn == 1) ? options.player1Name : options.player2Name) + "'s turn.", "notice", true);
+  }
 
 
   function winner () {
@@ -175,7 +250,22 @@ var speedTacToe = function () {
 
     }
 
-    if(gameOver) $('#game-page #board table tr td').unbind('click');
+    if(gameOver) {
+      message.append('<span id="play-again">Next game in <span id="timer">' + options.nextGameTimeout + '</span></span>', 'notice', true);
+      var timeToNextGame = options.nextGameTimeout;
+      var nextGameTimeout = setInterval(function () {
+        timeToNextGame--;
+        if(timeToNextGame <= 0) {
+          clearInterval(nextGameTimeout);
+          reset();
+          message.clear();
+        }
+        $("#timer").html(timeToNextGame);
+      }, 1000);
+      $('#game-page #board table tr td').unbind('click');
+      
+    }
+
     return gameOver;
 
   } // End winner()
@@ -242,4 +332,4 @@ var speedTacToe = function () {
 
   } // End buildBoard()
 
-} // End speedTacToe Object Function
+} // End ticTockToe Object Function
