@@ -23,7 +23,7 @@ var ticTockToe = function () {
   var options = {
 
     // How big the board will be...
-    boardSize : 5,
+    boardSize : 3,
 
     // Duration of a move before a random move (ms)...
     moveTimeout : 3000, // 3.0 Sec
@@ -39,7 +39,7 @@ var ticTockToe = function () {
     pushDuration: 5000, // 5.0 Sec
 
     nextGameTimeout: 5, // In seconds, 5.0 Sec
-    nextMoveTimeout: 1  // 3.0 Sec
+    nextMoveTimeout: 3  // 3.0 Sec
 
   } // End options Object
 
@@ -166,7 +166,7 @@ var ticTockToe = function () {
       row = Math.floor(Math.random() * (options.boardSize));
       col = Math.floor(Math.random() * (options.boardSize));
     }
-    $('#tic-toc-toe #board table tr td.row-' + row + '.col-' + col).html('<div class="player-' + turn + '-mark">' + ((turn == 1) ? options.player1Mark : options.player2Mark + "</div>"));
+    $('#tic-toc-toe #board #board-table div.block.row-' + row + '.col-' + col).html('<div class="player-' + turn + '-mark">' + ((turn == 1) ? options.player1Mark : options.player2Mark + "</div>"));
 
     moves[turn].push({ row: row, col: col });
     movesRaw.push('r:' + row + 'c:' + col + 'p:' + turn);
@@ -203,7 +203,7 @@ var ticTockToe = function () {
 
     setMoveTimer();
 
-    $('#tic-toc-toe #board table tr td').click(function () {
+    $('#tic-toc-toe #board #board-table div.block').click(function () {
       clearInterval(moveInterval);
       if($(this).html() == '') {
         $(this).html('<div class="player-' + turn + '-mark">' + ((turn == 1) ? options.player1Mark : options.player2Mark + "</div>"));
@@ -297,7 +297,7 @@ var ticTockToe = function () {
           message.clear();
         }
       }, 1000);
-      $('#tic-toc-toe #board table tr td').unbind('click');
+      $('#tic-toc-toe #board #board-table div.block').unbind('click');
       
     }
 
@@ -371,19 +371,19 @@ var ticTockToe = function () {
 
   function buildBoard () {
 
-    var board = ['<table id="board-table"><tbody>'];
+    var board = ['<div id="board-table">'];
 
     for(var i = 0; i < options.boardSize; i++) {
 
       board.push('<tr class="board-row row-' + i + '">');
-      for(var n = 0; n < options.boardSize; n++) board.push('<td class="board-col row-' + i + ' col-' + n + '"></td>');
+      for(var n = 0; n < options.boardSize; n++) board.push('<div class="block board-col row-' + i + ' col-' + n + '"></div>');
       board.push("</tr>");
 
     } // End for loop
+    board.push("</div>");
 
-    board.push("</tbody></table>");
     $("#tic-toc-toe #board").html(board.join(''));
-    $("#tic-toc-toe #board table tr td").attr('style', 'width:' + 100/options.boardSize + '%; height:' + $("#tic-toc-toe #board table").height()/options.boardSize + 'px !important;');
+    $("#tic-toc-toe #board #board-table div.block").attr('style', 'width:' + 90/options.boardSize + '%;' + 'height:' + 90/options.boardSize + '%;' + 'min-width:' + 90/options.boardSize + '%;');
 
 
   } // End buildBoard()

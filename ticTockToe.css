@@ -1,6 +1,9 @@
 div {
   margin: auto;
 }
+.push-messages {
+  font-weight: bold;
+}
 #playable {
   text-align: center;
   vertical-align: middle;
@@ -8,36 +11,33 @@ div {
   height: 100%;
   margin: auto;
 }
-#quit {
-  cursor: pointer;
-}
+
 #game-page #push-messages {
   min-height: 50px;
 }
 
 #board #board-table {
-  width: 100%;
-  min-height: 200px;
-  height: 500px;
+  width: 75%;
+  height: 75%;
+  min-height: 500px;
   margin: 0;
   padding: 0;
-  border-spacing: 0;
   margin: auto;
   text-align: center;
 }
-#board #board-table .block {
+
+.block {
   border: 2px solid #000000;
   width: auto;
-  min-width: 100px;
-  min-height: 100px;
   text-align: center;
   vertical-align: middle;
   font-family: sans-serif;
   font-size: 24px;
   text-transform: uppercase;
+  width: 25%;
+  min-height: 50px;
   margin: 0;
   padding: 0;
-  display: inline-block;
 }
 #board #board-table div.winning-move {
   color: red;
