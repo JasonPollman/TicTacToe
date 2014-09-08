@@ -3,21 +3,43 @@
   <head>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
-    <script src="ticTocToe.js"></script>
+    <script src="ticTacToe/ticTacToe.js"></script>
     <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" />
-    <link rel="stylesheet" href="ticTocToe.css" />
+    <link rel="stylesheet" href="ticTacToe/ticTacToe.css" />
   </head>
   <body>
     <div id="page-wrapper">
       <div id="title-page">
         <div id="menu">
+          <div id="title">Tic-Tac-Toe</div>
+          <div id="options">
+            <br>
+            <label for="player1-name">Player 1's Name</label><br>
+            <input type="text" id="player1-name" name="player1-name" value="Player 1">
+            <br>
+            <label for="player1-name">Player 2's Name</label><br>
+            <input type="text" id="player2-name" name="player2-name" value="Player 2">
+            <br>
+            <br>
+            <label for="board-size">Board Size</label><br>
+            <select id="board-size" name="board-size">
+              <option value="3">3x3 (Default)</option>
+              <option value="4">4x4</option>
+              <option value="5">5x5</option>
+              <option value="6">6x6</option>
+              <option value="7">7x7</option>
+            </select>
+          </div>
+          <br>
+          <br>
+          <div id="play">Start Game!</div>
         </div>
-        <div id="options">
-        </div>
-        <div id="names">
         </div>
       </div>
-      <div id="tic-toc-toe">
+      <div id="quit-2">
+        Quit
+      </div>
+      <div id="tic-tac-toe">
         <!-- Game Insertion Here -->
       </div>
     </div>

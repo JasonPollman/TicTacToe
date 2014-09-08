@@ -2,19 +2,33 @@
 
   $(function () {
 
-    $("#tic-toc-toe").append('<div id="header"></div><div id="push-messages"><div id="message"></div><div id="move-timer">3<br />Seconds Left Until Random Choice!</div><div id="times-won"></div></div><div id="playable"><div id="board"></div></div>');
+    $("#tic-tac-toe").append('<div id="header"></div><div id="times-won"></div><div id="push-messages"><div id="message"></div></div><div id="playable"><div id="board"></div></div>');
+    $("#play").click(function () {
 
-    var game = new ticTockToe();
-    game.new();
+      var p1 = $("#player1-name").val();
+      p1 = p1.charAt(0).toUpperCase() + p1.slice(1);
+
+      var p2 = $("#player2-name").val();
+      p2 = p2.charAt(0).toUpperCase() + p2.slice(1);
+
+      new ticTacToe().new({
+        player1Name: p1,
+        player2Name: p2,
+        boardSize: $("#board-size").val()
+      });
+
+      $("#tic-tac-toe").show();
+      $("#title-page").animate({ left: "-100%" }, { duration: 1000, easing: 'easeInOutExpo' });
+    })
 
   }); // End document.ready()
 
 })(jQuery);
 
 
-// <------------------------------------ ticTockToe CLASS ------------------------------------> //
+// <------------------------------------ ticTacToe CLASS ------------------------------------> //
 
-var ticTockToe = function () {
+var ticTacToe = function () {
 
   // For scoping, in the event of callbacks
   var self = this;
@@ -35,11 +49,10 @@ var ticTockToe = function () {
     player1Mark : "x",
     player2Mark : "o",
 
-    fadeDuration: 1000, // 1.0 Sec
-    pushDuration: 5000, // 5.0 Sec
+    fadeDuration: 0800, // 0.8 Sec
+    pushDuration: 8000, // 5.0 Sec
 
     nextGameTimeout: 5, // In seconds, 5.0 Sec
-    nextMoveTimeout: 3  // 3.0 Sec
 
   } // End options Object
 
@@ -48,13 +61,13 @@ var ticTockToe = function () {
 
     push: function (msg, strClasses, sticky) {
 
-      $("#tic-toc-toe #push-messages #message").stop().fadeOut(options.fadeDuration, function (e) {
+      $("#tic-tac-toe #push-messages #message").stop().fadeOut(options.fadeDuration, function (e) {
         $(this).html(msg).removeClass().addClass('push-' + (strClasses || 'notice')).fadeIn(options.fadeDuration);
       });
 
       if(!sticky) {
         pushTimeout = setTimeout(function () {
-          $("#tic-toc-toe #push-messages #message").fadeOut(options.fadeDuration);
+          $("#tic-tac-toe #push-messages #message").fadeOut(options.fadeDuration);
           clearTimeout(pushTimeout);
         }, options.pushDuration);
       }
@@ -63,14 +76,14 @@ var ticTockToe = function () {
 
     append: function (msg, strClasses, sticky) {
 
-      $("#tic-toc-toe #push-messages #message").hide(function (e) {
+      $("#tic-tac-toe #push-messages #message").hide(function (e) {
         $(this).html($(this).html() + '<br />' + msg).removeClass().addClass('push-' + (strClasses || 'notice')).fadeIn(options.fadeDuration);
       });
 
       clearTimeout(pushTimeout);
       if(!sticky) {
         pushTimeout = setTimeout(function () {
-          $("#tic-toc-toe #push-messages #message").fadeOut(options.fadeDuration);
+          $("#tic-tac-toe #push-messages #message").fadeOut(options.fadeDuration);
           clearTimeout(pushTimeout);
         }, options.pushDuration);
       }
@@ -78,7 +91,7 @@ var ticTockToe = function () {
     }, // End append()
 
     clear: function () {
-      $("#tic-toc-toe #push-messages #message").html("");
+      $("#tic-tac-toe #push-messages #message").html("");
     } // End clear()
 
   } // End message Object
@@ -122,21 +135,20 @@ var ticTockToe = function () {
     buildBoard();
 
     // Start gameplay:
-    reset();
-
+    gameplay();
 
 
   } // End new() method
 
 
+  /**
+   * Retrieve the game object, for info about this game:
+   */
   self.game = function () { return game; }
 
-
-  self.restart = function () {
-    reset();
-    self.new();
-  }
-
+  /**
+   * Stop the nextGameTimeout from starting a new game automatically.
+   */
   self.stop = function () {
     clearInterval(nextGameTimeout);
   }
@@ -144,42 +156,12 @@ var ticTockToe = function () {
 
   // <------------------------- PRIVATE METHODS ------------------------> //
 
-  function setMoveTimer() {
-    var moveTimer = options.nextMoveTimeout;
-    moveInterval = setInterval(function () {
-      $("#tic-toc-toe #move-timer").html(moveTimer + "<br />Seconds Left Until Random Choice!");
-      
-      if(moveTimer <= 0) {
-        clearInterval(moveInterval);
-        makeRandomMove();
-      }
-      moveTimer--;
-    }, 1000);
-  }
+  function gameplay() {
 
-  function makeRandomMove() {
-    
-    var row = Math.floor(Math.random() * (options.boardSize));
-    var col = Math.floor(Math.random() * (options.boardSize));
-
-    while((movesRaw.indexOf('r:' + row + 'c:' + col + 'p:' + 1) > -1) || (movesRaw.indexOf('r:' + row + 'c:' + col + 'p:' + 2) > -1)) {
-      row = Math.floor(Math.random() * (options.boardSize));
-      col = Math.floor(Math.random() * (options.boardSize));
-    }
-    $('#tic-toc-toe #board #board-table div.block.row-' + row + '.col-' + col).html('<div class="player-' + turn + '-mark">' + ((turn == 1) ? options.player1Mark : options.player2Mark + "</div>"));
-
-    moves[turn].push({ row: row, col: col });
-    movesRaw.push('r:' + row + 'c:' + col + 'p:' + turn);
-    lastMove = [row, col];
-    moveCount++;
-    gameOver = winner();
-    if(!gameOver) {
-      nextTurn(true);
-      setMoveTimer();
-    }
-  }
-
-  function reset() {
+    $('#tic-tac-toe #quit, #quit-2').click(function () {
+      $("#title-page").animate({ left: 0 }, { duration: 1000, easing: 'easeInOutExpo' });
+      $("#push-messages #message").html("");
+    });
 
     moves     = { 1: [], 2: [] };
     movesRaw  = [];
@@ -187,26 +169,24 @@ var ticTockToe = function () {
     turn      = undefined;
     gameOver  = false;
 
-    $('#tic-toc-toe #times-won *').remove();
+    $('#tic-tac-toe #times-won *').remove();
 
-    $('#tic-toc-toe #times-won').append('<div>' + options.player1Name + ': <span id="wp-' + 1 + '">' + timesWon[1] + '</span></div>');
-    $('#tic-toc-toe #times-won').append('<div>' + options.player2Name + ': <span id="wp-' + 2 + '">' + timesWon[2] + '</span></div>');
-    $('#tic-toc-toe #times-won').append('<div>' + 'Stale Mate: ' + '<span id="wp-0">' + timesWon[0] + '</span></div>');
+    $('#tic-tac-toe #times-won').append('<strong>Winning Stats:</strong><hr><div>' + options.player1Name + ': <span id="wp-' + 1 + '">' + timesWon[1] + '</span></div>');
+    $('#tic-tac-toe #times-won').append('<div>' + options.player2Name + ': <span id="wp-' + 2 + '">' + timesWon[2] + '</span></div>');
+    $('#tic-tac-toe #times-won').append('<div>' + 'Stale Mate: ' + '<span id="wp-0">' + timesWon[0] + '</span></div><hr>');
 
 
     $('.board-col').html("").removeClass("winning-move");
-    $('#tic-toc-toe #move-timer').show();
 
     // Determine if Player 1 || 2 goes first:
     turn = Math.floor(Math.random() * (3 - 1)) + 1;
-    message.push(game.currentPlayer + " has been randomly choosen to go first!", "notice");
+    message.push(game.currentPlayer + " has been randomly choosen to go first!", "notice", true);
 
-    setMoveTimer();
 
-    $('#tic-toc-toe #board #board-table div.block').click(function () {
-      clearInterval(moveInterval);
+    $('#tic-tac-toe #board #board-table div.block').click(function () {
+
       if($(this).html() == '') {
-        $(this).html('<div class="player-' + turn + '-mark">' + ((turn == 1) ? options.player1Mark : options.player2Mark + "</div>"));
+        $(this).html('<div class="player-' + turn + '-mark player-mark" style="line-height: ' + $(this).height() + 'px; ">' + ((turn == 1) ? options.player1Mark : options.player2Mark + "</div>"));
         
         var row = $(this).attr('class').match(/row-(\d+)/)[1];
         var col = $(this).attr('class').match(/col-(\d+)/)[1];
@@ -218,7 +198,6 @@ var ticTockToe = function () {
         gameOver = winner();
         if(!gameOver) {
           nextTurn();
-          setMoveTimer();
         }
       }
       else {
@@ -227,7 +206,7 @@ var ticTockToe = function () {
 
     }) // End click handler
 
-  } // End reset()
+  } // End gameplay()
 
 
   function setOptions (userOpts) {
@@ -236,9 +215,10 @@ var ticTockToe = function () {
   } // End setOptions()
 
 
-  function nextTurn (compMove) {
+  function nextTurn () {
+    var lastPlayer = game.currentPlayer;
     turn = (turn == 1) ? 2 : 1;
-    message.push(((compMove) ? "<strong>The Computer</strong>" : "You") + " made your mark in row " + (parseInt(lastMove[0]) + 1) + ", column " + (parseInt(lastMove[1]) + 1) + ". Now, it's " + ((turn == 1) ? options.player1Name : options.player2Name) + "'s turn.", "notice", true);
+    message.push(lastPlayer + " has made their mark in row " + (parseInt(lastMove[0]) + 1) + ", column " + (parseInt(lastMove[1]) + 1) + ". <span class=\"emphasis\">Now, it's " + ((turn == 1) ? options.player1Name : options.player2Name) + "'s turn.</span>", "notice", true);
   }
 
 
@@ -263,41 +243,35 @@ var ticTockToe = function () {
 
         winningPlayer = (turn == 1) ? options.player1Name : options.player2Name;
         loosingPlayer = (turn == 1) ? options.player2Name : options.player1Name;
-        message.push(winningPlayer + " has defeated Player " + loosingPlayer + "!", 'notice', true);
+        message.push(winningPlayer + " has defeated " + loosingPlayer + "!", 'notice', true);
       }
 
     }
 
     if(gameOver) {
-      $('#tic-toc-toe #move-timer').fadeOut(options.fadeDuration);
-      timesWon[wp] = parseInt($('#tic-toc-toe #times-won #wp-' + wp).html());
-      $('#tic-toc-toe #times-won #wp-' + wp).html(++timesWon[wp]);
-      message.append('<span id="play-again">Next game in <span id="timer">' + options.nextGameTimeout + '</span><span id="quit">Tired of playing? Quit.</span></span>', 'notice', true);
+      $('#tic-tac-toe #move-timer').fadeOut(options.fadeDuration);
+      timesWon[wp] = parseInt($('#tic-tac-toe #times-won #wp-' + wp).html());
+      $('#tic-tac-toe #times-won #wp-' + wp).html(++timesWon[wp]);
+      message.append('<span id="play-again">Next game in <span id="timer">' + options.nextGameTimeout + '</span>.<span id="quit"> Tired of playing? Quit.</span></span>', 'notice', true);
       var timeToNextGame = options.nextGameTimeout;
       var nextGameTimeout = setInterval(function () {
 
-        $("#tic-toc-toe #timer").html(timeToNextGame);
+        $("#tic-tac-toe #timer").html(timeToNextGame);
 
-        $('#tic-toc-toe #quit').click(function () {
-          $("#tic-toc-toe #move-timer").hide();
-          $("#tic-toc-toe #push-messages *").toggle(1000, function () {
-            $(this).remove();
-          });
-          $("#tic-toc-toe #times-won *").toggle(1000, function () {
-            $(this).remove();
-          });
-
+        $('#tic-tac-toe #quit, #quit-2').click(function () {
+          $("#title-page").animate({ left: 0 }, { duration: 1000, easing: 'easeInOutExpo' });
           clearInterval(nextGameTimeout);
+          $("#push-messages #message").html("");
         });
 
         timeToNextGame--;
         if(timeToNextGame <= -1) {
           clearInterval(nextGameTimeout);
-          reset();
+          gameplay();
           message.clear();
         }
       }, 1000);
-      $('#tic-toc-toe #board #board-table div.block').unbind('click');
+      $('#tic-tac-toe #board #board-table div.block').unbind('click');
       
     }
 
@@ -326,11 +300,11 @@ var ticTockToe = function () {
     var l = options.boardSize - 1;
     for(var i = 0; i < options.boardSize; i++) {
       if((cols[i] && cols[i] >= options.boardSize)) {
-        $('#tic-toc-toe #board .col-' + i).addClass('winning-move');
+        $('#tic-tac-toe #board .col-' + i).addClass('winning-move');
         return true;
       }
       if(rows[i] && rows[i] >= options.boardSize) {
-        $('#tic-toc-toe #board .row-' + i).addClass('winning-move');
+        $('#tic-tac-toe #board .row-' + i).addClass('winning-move');
         return true;
       }
 
@@ -352,14 +326,14 @@ var ticTockToe = function () {
     if(diagDown >= options.boardSize) {
       for(var i in diagDownWinners) {
         console.log(diagDownWinners);
-        $('#tic-toc-toe #board .row-' + diagDownWinners[i][0] + '.col-' + diagDownWinners[i][1]).addClass('winning-move');
+        $('#tic-tac-toe #board .row-' + diagDownWinners[i][0] + '.col-' + diagDownWinners[i][1]).addClass('winning-move');
       }
       return true;
     }
     else if(diagUp >= options.boardSize) {
       for(var i in diagUpWinners) {
         console.log(diagUpWinners);
-        $('#tic-toc-toe #board .row-' + diagUpWinners[i][0] + '.col-' + diagUpWinners[i][1]).addClass('winning-move');
+        $('#tic-tac-toe #board .row-' + diagUpWinners[i][0] + '.col-' + diagUpWinners[i][1]).addClass('winning-move');
       }
       return true;
     }
@@ -376,16 +350,30 @@ var ticTockToe = function () {
     for(var i = 0; i < options.boardSize; i++) {
 
       board.push('<tr class="board-row row-' + i + '">');
-      for(var n = 0; n < options.boardSize; n++) board.push('<div class="block board-col row-' + i + ' col-' + n + '"></div>');
+      
+      for(var n = 0; n < options.boardSize; n++) {
+
+        var classes = ['block', 'board-col'];
+
+        if(i % options.boardSize == 0) { classes.push('top'); }
+        if(i % options.boardSize == options.boardSize - 1) { classes.push('bottom'); }
+
+        if(n % options.boardSize == 0) { classes.push('left'); }
+        if(n % options.boardSize == options.boardSize - 1) { classes.push('right'); }
+
+        board.push('<div class="row-' + i + ' col-' + n + " " + classes.join(' ') + '"></div>');
+      
+      } // End inner for loop
+
       board.push("</tr>");
 
     } // End for loop
     board.push("</div>");
 
-    $("#tic-toc-toe #board").html(board.join(''));
-    $("#tic-toc-toe #board #board-table div.block").attr('style', 'width:' + 90/options.boardSize + '%;' + 'height:' + 90/options.boardSize + '%;' + 'min-width:' + 90/options.boardSize + '%;');
+    $("#tic-tac-toe #board").html(board.join(''));
+    $("#tic-tac-toe #board #board-table div.block").attr('style', 'width:' + 90/options.boardSize + '%;' + 'height:' + 90/options.boardSize + '%;' + 'min-width:' + 90/options.boardSize + '%;');
 
 
   } // End buildBoard()
 
-} // End ticTockToe Object Function
+} // End ticTacToe Object Function
