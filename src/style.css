@@ -1,0 +1,128 @@
+@import url(http://fonts.googleapis.com/css?family=Oswald:400,300,700);
+@import url(http://fonts.googleapis.com/css?family=Permanent+Marker);
+
+body {
+  background:url(../img/bkg.jpg);
+  background-attachment:fixed;
+  background-size:cover;
+  color:#FFF;
+  font-family:sans-serif;
+  font-size:12px;
+  padding:20px;
+}
+div {
+  margin:auto;
+}
+hr {
+  border:none;
+  border-top:1px solid #bababa;
+  height:0;
+}
+html {
+  height:100%;
+  min-height:100%;
+}
+label {
+  font-size:18px;
+  text-transform:uppercase;
+}
+#board #board-table {
+  border-spacing:0;
+  height:100%;
+  margin:20px auto 50px;
+  min-height:100%;
+  padding:0;
+  text-align:center;
+  width:100%;
+}
+#board #board-table .block {
+  border:2px solid #fff;
+  cursor:pointer;
+  display:inline-block;
+  font-family:'Permanent Marker', sans-serif;
+  font-size:48px;
+  margin:0;
+  min-height:100px;
+  min-width:100px;
+  padding:0;
+  text-align:center;
+  text-transform:uppercase;
+  vertical-align:middle;
+  width:auto;
+}
+#board #board-table .block.bottom     { border-bottom:0; }
+#board #board-table .block.left       { border-left:0;   }
+#board #board-table .block.right      { border-right:0;  }
+#board #board-table .block.top        { border-top:0;    }
+#board #board-table div.winning-move  { color:#1ad900;   }
+#game-page #push-messages             { min-height:50px; }
+#play {
+  -moz-box-shadow:0 3px 10px 2px rgba(0,0,0,0.71);
+  -webkit-box-shadow:0 3px 10px 2px rgba(0,0,0,0.71);
+  background-color:rgba(255,255,255,.7);
+  border:2px solid #fff;
+  border-radius:20px;
+  box-shadow:0 3px 10px 2px rgba(0,0,0,0.71);
+  color:#000;
+  cursor:pointer;
+  font-family:Oswald, sans-serif;
+  font-size:24px;
+  text-transform:uppercase;
+  width:180px;
+}
+#playable {
+  height:100%;
+  margin:auto;
+  min-height:100%;
+  text-align:center;
+  vertical-align:middle;
+  width:100%;
+}
+.player-mark { cursor:default; }
+#push-messages {
+  font-size:18px;
+  min-height:50px;
+  padding:0 10px 10px;
+}
+#quit {
+  color:#f55;
+  cursor:pointer;
+}
+#quit-2 {
+  cursor:pointer;
+  float:right;
+}
+#tic-tac-toe {
+  display:none;
+  min-height:100%;
+}
+#times-won {
+  margin-top:10px;
+  padding:5px;
+}
+#times-won div {
+  display:inline-block;
+  margin:0 10px;
+}
+#title {
+  font-size:60px;
+  margin-top:40px;
+  text-transform:uppercase;
+}
+#title-page {
+  background:url(../img/title.jpg);
+  background-attachment:fixed;
+  background-size:cover;
+  font-family:Oswald;
+  font-size:12px;
+  height:100%;
+  left:0;
+  position:fixed;
+  text-align:center;
+  top:0;
+  width:100%;
+  z-index:1000;
+}
+.emphasis {
+  font-style:oblique;
+}
