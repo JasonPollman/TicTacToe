@@ -1,5 +1,5 @@
 # Tic-Tac-Toe
-> An HTML/JavaScript version of the classic game. [See it in action, here.](http://www.theafterbyte.com/tic-tac-toe)
+> An HTML/JavaScript version of the classic game. [See it in action, here.](http://www.jasonpollman.com/tic-tac-toe)
 
 **Jason Pollman**  
 ITCS-4230-091  
